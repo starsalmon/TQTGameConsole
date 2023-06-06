@@ -7,6 +7,9 @@
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
 
+// define this macro to enable debug messages
+#define DEBUG_ENABLED true
+
 #define left 0
 #define right 47
 
@@ -249,46 +252,53 @@ void runSpace() {
 }
 
 
-void setup() { 
-    pinMode(left,INPUT_PULLUP);
-    pinMode(right,INPUT_PULLUP);
-   
-    tft.init();
-    tft.setRotation(2);
-    sprite.createSprite(128,128);
-    tft.setSwapBytes(true);
-    sprite.setSwapBytes(true);
-    tft.pushImage(0,0,128,128,menu);
-    tft.fillCircle(16,70+(game*16),4,0xC018);
+void setup() {
+  #ifdef DEBUG_ENABLED
+      Serial.begin(115200);
+      Serial.println("Hello T-QT");
+  #endif
+
+  pinMode(left,INPUT_PULLUP);
+  pinMode(right,INPUT_PULLUP);
+
+  tft.init();
+  tft.setRotation(2);
+  sprite.createSprite(128,128);
+  tft.setSwapBytes(true);
+  sprite.setSwapBytes(true);
+  tft.pushImage(0,0,128,128,menu);
+  tft.fillCircle(16,70+(game*16),4,0xC018);
 
 
-    while(digitalRead(right)==1)
+  while(digitalRead(right)==1)
+  {
+    if(digitalRead(left)==0)
     {
-        if(digitalRead(left)==0){
-          if(deb==0)
-          {deb=1;
-          game++;
-          if(game==3) game=0;
-          tft.pushImage(0,0,128,128,menu);
-          tft.fillCircle(16,70+(game*16),4,0xC018);
-          }
-        }   else deb=0;
+      if(deb==0)
+      {
+        deb=1;
+        game++;
+        if(game==3) game=0;
+        tft.pushImage(0,0,128,128,menu);
+        tft.fillCircle(16,70+(game*16),4,0xC018);
+      }
+    } else deb=0;
+  }
 
-    }
+  y[0]=random(5,14);
+  getFood();
+    
+  dirX=1;
+  dirY=0;
 
-    y[0]=random(5,14);
-    getFood();
-      
-    dirX=1;
-    dirY=0;
+  for(int i=0;i<5;i++)
+  enemyX[i]=(random(0,6)*20)+1;
 
-    for(int i=0;i<5;i++)
-    enemyX[i]=(random(0,6)*20)+1;
-
-    for(int i=0;i<30;i++){
+  for(int i=0;i<30;i++)
+  {
     dotX[i]=random(10,120);
     dotY[i]=random(10,120);
-    }
+  }
 }
 
 
@@ -368,5 +378,4 @@ void loop() {
       shipD=!shipD;  
     runSpace();
   }
-
 }
